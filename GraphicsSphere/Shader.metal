@@ -12,3 +12,5 @@
 using namespace metal;
 using namespace raytracing;
 
+kernel void raytracing(uint2 tid [[thread_position_in_grid]], constant Scene & scene [[buffer(0)]]) {
+}

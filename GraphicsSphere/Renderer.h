@@ -9,6 +9,10 @@
 
 #import <MetalKit/MetalKit.h>
 
+#define WIDTH 512
+#define HEIGHT 512
+#define FOV 45
+
 @interface Renderer : NSObject <MTKViewDelegate>
 
 - (instancetype)initWithDevice:(id<MTLDevice>)device;
