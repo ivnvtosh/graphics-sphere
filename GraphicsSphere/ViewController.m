@@ -8,6 +8,7 @@
 #import "ViewController.h"
 
 @implementation ViewController {
+	Renderer* renderer;
 }
 
 - (void)viewDidLoad {
@@ -16,6 +17,8 @@
 	NSAssert(device && device.supportsRaytracing, @"Ray tracing isn't supported on this device");
 	MTKView* view = (MTKView*)self.view;
 	view.device = device;
+	renderer = [[Renderer alloc] initWithDevice:device];
+	view.delegate = renderer;
 }
 
 @end
