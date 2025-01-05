@@ -20,7 +20,13 @@ struct Sphere {
 	float radius;
 };
 
+struct Light {
+	vector_float3 position;
+	vector_float3 color;
+};
+
 struct Scene {
 	struct Camera camera;
 	struct Sphere sphere;
+	struct Light light;
 };

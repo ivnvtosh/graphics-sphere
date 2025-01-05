@@ -19,6 +19,8 @@
 	view.device = device;
 	renderer = [[Renderer alloc] initWithDevice:device];
 	view.delegate = renderer;
+	view.colorPixelFormat = MTLPixelFormatRGBA16Float;
+	[renderer mtkView:view drawableSizeWillChange:view.bounds.size];
 }
 
 @end

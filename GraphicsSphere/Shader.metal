@@ -46,9 +46,49 @@ inline HitSphereResult hitSphere(ray ray, Sphere sphere) {
 	return result;
 }
 
-kernel void raytracing(uint2 tid [[thread_position_in_grid]], constant Scene & scene [[buffer(0)]]) {
+kernel void raytracingKernel(uint2 tid [[thread_position_in_grid]], constant Scene& scene [[buffer(0)]], texture2d<float, access::write> texture [[texture(0)]]) {
 	float2 pixel = (float2)tid;
 	ray ray = getRay(scene.camera, pixel);
 	HitSphereResult result = hitSphere(ray, scene.sphere);
-	float3 color = result.hit ? scene.sphere.color : float3(0, 0, 0);
+	float3 color;
+	if (result.hit) {
+		float3 point = ray.origin + ray.direction * result.time[0];
+		float3 sphereNormal = normalize(point - scene.sphere.position);
+		float3 lightPosition = scene.light.position;
+		float3 lightDirection = normalize(lightPosition - point);
+		float intensity = dot(sphereNormal, lightDirection);
+		color = scene.sphere.color * intensity;
+	} else {
+		color = float3(0, 0, 0);
+	}
+	texture.write(float4(color, 1.0f), tid);
+}
+
+constant float2 quadVertices[] = {
+	float2(-1, -1),
+	float2(-1,  1),
+	float2( 1,  1),
+	float2(-1, -1),
+	float2( 1,  1),
+	float2( 1, -1)
+};
+
+struct CopyVertexOut {
+	float4 position [[position]];
+	float2 uv;
+};
+
+vertex CopyVertexOut copyVertex(unsigned short vid [[vertex_id]]) {
+	float2 position = quadVertices[vid];
+	CopyVertexOut out;
+	out.position = float4(position, 0, 1);
+	out.uv = position * 0.5f + 0.5f;
+	return out;
+}
+
+fragment float4 copyFragment(CopyVertexOut in [[stage_in]], texture2d<float> tex) {
+	constexpr sampler sam(min_filter::nearest, mag_filter::nearest, mip_filter::none);
+	float3 color = tex.sample(sam, in.uv).xyz;
+	color = color / (1.0f + color);
+	return float4(color, 1.0f);
 }
