@@ -17,6 +17,11 @@ struct HitSphereResult {
 	bool hit;
 };
 
+struct HitPlaneResult {
+	float time;
+	bool hit;
+};
+
 inline ray getRay(Camera camera, float2 pixel) {
 	float3 direction;
 	direction.x = camera.focus;
@@ -26,6 +31,18 @@ inline ray getRay(Camera camera, float2 pixel) {
 	ray.origin = camera.position;
 	ray.direction = normalize(direction);
 	return ray;
+}
+
+inline HitPlaneResult hitPlane(ray ray, Plane plane) {
+	float denominator = dot(ray.direction, plane.normal);
+	HitPlaneResult result;
+	if (abs(denominator) < 0.0001f) {
+		result.hit = false;
+	} else {
+		result.hit = true;
+		result.time = dot(plane.position - ray.origin, plane.normal) / denominator;
+	}
+	return result;
 }
 
 inline HitSphereResult hitSphere(ray ray, Sphere sphere) {
@@ -38,29 +55,57 @@ inline HitSphereResult hitSphere(ray ray, Sphere sphere) {
 	if (d < 0) {
 		result.hit = false;
 	} else {
-		float t1 = (-b - sqrt(d)) / (2 * a);
-		float t2 = (-b + sqrt(d)) / (2 * a);
 		result.hit = true;
-		result.time = float2(t1, t2);
+		result.time[0] = (-b - sqrt(d)) / (2 * a);
+		result.time[1] = (-b + sqrt(d)) / (2 * a);
 	}
 	return result;
+}
+
+inline float3 getColor(constant Scene& scene, ray ray, HitPlaneResult result) {
+	float3 point = ray.origin + ray.direction * result.time;
+	float3 lightDirection = normalize(scene.light.position - point);
+	
+	struct ray new_ray;
+	new_ray.origin = point;
+	new_ray.direction = lightDirection;
+	HitSphereResult hitSphereResult = hitSphere(new_ray, scene.sphere);
+	if (hitSphereResult.hit && hitSphereResult.time[0] > 0) {
+		return scene.background_color;
+	}
+	
+	float intensity = dot(scene.plane.normal, lightDirection);
+	return scene.plane.color * intensity;
+}
+
+inline float3 getColor(constant Scene& scene, ray ray, HitSphereResult result) {
+	float3 point = ray.origin + ray.direction * result.time[0];
+	float3 sphereNormal = normalize(point - scene.sphere.position);
+	float3 lightDirection = normalize(scene.light.position - point);
+	float intensity = dot(sphereNormal, lightDirection);
+	return scene.sphere.color * intensity;
 }
 
 kernel void raytracingKernel(uint2 tid [[thread_position_in_grid]], constant Scene& scene [[buffer(0)]], texture2d<float, access::write> texture [[texture(0)]]) {
 	float2 pixel = (float2)tid;
 	ray ray = getRay(scene.camera, pixel);
-	HitSphereResult result = hitSphere(ray, scene.sphere);
+	HitPlaneResult hitPlaneResult = hitPlane(ray, scene.plane);
+	HitSphereResult hitSphereResult = hitSphere(ray, scene.sphere);
 	float3 color;
-	if (result.hit) {
-		float3 point = ray.origin + ray.direction * result.time[0];
-		float3 sphereNormal = normalize(point - scene.sphere.position);
-		float3 lightPosition = scene.light.position;
-		float3 lightDirection = normalize(lightPosition - point);
-		float intensity = dot(sphereNormal, lightDirection);
-		color = scene.sphere.color * intensity;
+	if (hitPlaneResult.hit && hitSphereResult.hit) {
+		if (hitPlaneResult.time < hitSphereResult.time[0] && hitPlaneResult.time > 0) {
+			color = getColor(scene, ray, hitPlaneResult);
+		} else {
+			color = getColor(scene, ray, hitSphereResult);
+		}
+	} else if (hitPlaneResult.hit && hitPlaneResult.time > 0) {
+		color = getColor(scene, ray, hitPlaneResult);
+	} else if (hitSphereResult.hit && hitSphereResult.time[0] > 0) {
+		color = getColor(scene, ray, hitSphereResult);
 	} else {
-		color = float3(0, 0, 0);
+		color = scene.background_color;
 	}
+	
 	texture.write(float4(color, 1.0f), tid);
 }
 

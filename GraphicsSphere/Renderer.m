@@ -44,6 +44,10 @@
 	scene.sphere.radius = 1.0f;
 	scene.light.position = vector3(-5.0f, 5.0f, 5.0f);
 	scene.light.color = vector3(1.0f, 1.0f, 1.0f);
+	scene.plane.position = vector3(0.0f, 0.0f, -1.0f);
+	scene.plane.normal = vector3(0.0f, 0.0f, 1.0f);
+	scene.plane.color = vector3(1.0f, 1.0f, 1.0f);
+	scene.background_color = vector3(0.0f, 0.0f, 0.0f);
 	sceneBuffer = [device newBufferWithLength:sizeof(struct Scene) options:MTLResourceStorageModeManaged];
 }
 
@@ -58,7 +62,7 @@
 - (void)updateScene {
 	self->frameNumber += 1;
 	struct Scene* scene = (struct Scene *)((char *)sceneBuffer.contents);
-	scene->light.position = vector3(-5.0f, sinf(self->frameNumber / 50.0f) * 20.0f, 5.0f);
+	scene->light.position = vector3(cosf(self->frameNumber / 50.0f) * -20.0f, sinf(self->frameNumber / 50.0f) * 20.0f, 5.0f);
 }
 
 // MARK: - Setup Shader

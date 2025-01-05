@@ -14,6 +14,12 @@ struct Camera {
 	float focus;
 };
 
+struct Plane {
+	vector_float3 position;
+	vector_float3 normal;
+	vector_float3 color;
+};
+
 struct Sphere {
 	vector_float3 position;
 	vector_float3 color;
@@ -27,6 +33,8 @@ struct Light {
 
 struct Scene {
 	struct Camera camera;
+	struct Plane plane;
 	struct Sphere sphere;
 	struct Light light;
+	vector_float3 background_color;
 };
