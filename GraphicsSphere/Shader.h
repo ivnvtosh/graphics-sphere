@@ -7,34 +7,37 @@
 
 #include <simd/simd.h>
 
-struct Camera {
+struct material {
+	vector_float3 color;
+	int light;
+	float glow_intensity;
+	int mirror;
+	int transparent;
+};
+
+struct camera {
 	vector_float3 position;
-	float width;
-	float height;
+	matrix_float3x3 matrix;
+	vector_float2 size;
 	float focus;
 };
 
-struct Plane {
-	vector_float3 position;
-	vector_float3 normal;
-	vector_float3 color;
-};
-
-struct Sphere {
-	vector_float3 position;
-	vector_float3 color;
-	float radius;
-};
-
-struct Light {
-	vector_float3 position;
-	vector_float3 color;
-};
-
-struct Scene {
-	struct Camera camera;
-	struct Plane plane;
-	struct Sphere sphere;
-	struct Light light;
+struct scene {
+	struct camera camera;
 	vector_float3 background_color;
+	int frame_index;
+	int number_planes;
+	int number_spheres;
+};
+
+struct plane {
+	vector_float3 position;
+	struct material material;
+	vector_float3 normal;
+};
+
+struct sphere {
+	vector_float3 position;
+	struct material material;
+	float radius;
 };

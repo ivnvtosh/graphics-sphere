@@ -684,7 +684,7 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA" customClass="Window">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
@@ -708,6 +708,26 @@
                     <view key="view" id="m2S-Jp-Qdl" customClass="MTKView">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="voX-kR-3N8">
+                                <rect key="frame" x="186" y="227" width="108" height="24"/>
+                                <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="YOH-ey-GBZ">
+                                    <font key="font" metaFont="system"/>
+                                    <segments>
+                                        <segment image="cube.transparent" catalog="system" width="32" enabled="NO"/>
+                                        <segment image="cube" catalog="system" width="32" selected="YES" tag="1"/>
+                                        <segment image="cube.fill" catalog="system" width="32"/>
+                                    </segments>
+                                    <connections>
+                                        <action selector="segmentedCellDidChange:" target="XfG-lQ-9wD" id="nzR-L1-VJL"/>
+                                    </connections>
+                                </segmentedCell>
+                            </segmentedControl>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="voX-kR-3N8" firstAttribute="centerX" secondItem="m2S-Jp-Qdl" secondAttribute="centerX" id="3jd-rg-Rzr"/>
+                            <constraint firstItem="voX-kR-3N8" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="ju3-BL-LmX"/>
+                        </constraints>
                     </view>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -715,4 +735,9 @@
             <point key="canvasLocation" x="75" y="655"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="cube" catalog="system" width="16" height="17"/>
+        <image name="cube.fill" catalog="system" width="16" height="17"/>
+        <image name="cube.transparent" catalog="system" width="16" height="17"/>
+    </resources>
 </document>
